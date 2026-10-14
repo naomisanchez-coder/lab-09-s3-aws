@@ -1,90 +1,81 @@
-Laboratorio 09: Cloud Storage (S3)
+# Laboratorio 09: Cloud Storage (S3)
 
-Estudiante: Naomi Sanchez
+**Estudiante:** Naomi Sanchez  
+**Curso:** Desarrollo de Soluciones en la Nube  
+**Tecnologías:** Amazon S3, AWS CLI, Node.js (Express 5), AWS SDK v3, HTML5 / JavaScript ES6  
 
-Curso: Desarrollo de Soluciones en la Nube
+---
 
-Tecnologías: Amazon S3, AWS CLI, Node.js (Express 5), AWS SDK v3, HTML5 / JavaScript ES6
+## 📌 Descripción del Proyecto
 
-📌 Descripción del Proyecto
+Este laboratorio cubre la configuración, administración y desarrollo de aplicaciones conectadas a **Amazon S3** (Simple Storage Service), aplicando buenas prácticas de seguridad, control de acceso mediante IAM, políticas de ciclo de vida, versionamiento y transferencias seguras mediante **Presigned URLs**.
 
-Este laboratorio cubre la configuración, administración y desarrollo de aplicaciones conectadas a Amazon S3 (Simple Storage Service), implementando buenas prácticas de seguridad, control de acceso mediante IAM, políticas de ciclo de vida, versionamiento y transferencias seguras mediante Presigned URLs.
+---
 
-📁 Estructura del Proyecto
+## 📁 Estructura del Proyecto
 
+```text
 lab-09-s3-aws/
-├── backend/                  # Servidor API REST con Express 5 y AWS SDK v3
-│   ├── .env                  # Variables de entorno (región, bucket y credenciales IAM)
-│   ├── .gitignore            # Archivos ignorados por Git
-│   ├── package.json          # Dependencias (express, cors, @aws-sdk/client-s3, etc.)
-│   └── server.js             # Endpoints para generación de Presigned URLs y operaciones S3
-├── frontend/                 # Interfaz de usuario estática
-│   ├── index.html            # UI principal de la Galería Fotográfica
-│   └── app.js                # Lógica del cliente, validaciones y subida directa a S3 (PUT)
-├── capturas/                 # Evidencias fotográficas de la ejecución de los ejercicios 1, 2 y 3
-├── informe/                  # Documentación Markdown con preguntas de análisis y seguridad
-│   ├── ejercicio1.md
-│   ├── ejercicio2.md
-│   ├── ejercicio3.md
-│   └── ejercicio4.md
-└── README.md                 # Documentación general del repositorio
+├── backend/
+│   ├── .env                 # Variables de entorno (credenciales AWS, puerto, bucket)
+│   ├── .gitignore           # Archivos ignorados por Git
+│   ├── package.json         # Dependencias de Node.js (Express 5, AWS SDK v3)
+│   └── server.js            # API REST con endpoints para Presigned URLs y operaciones S3
+├── frontend/
+│   ├── index.html           # Interfaz gráfica para carga y galería de imágenes
+│   └── app.js               # Lógica del cliente, validaciones y subida directa (PUT) a S3
+├── informe/
+│   ├── ejercicio1.md        # Documentación de configuración básica y AWS CLI
+│   ├── ejercicio2.md        # Seguridad, IAM y políticas de bucket (HTTPS)
+│   ├── ejercicio3.md        # Versionamiento, Delete Markers y Reglas de Ciclo de Vida
+│   └── ejercicio4.md        # Monitoreo, métricas y aplicación web con Presigned URLs
+├── capturas/                # Evidencias fotográficas de cada ejercicio
+└── README.md                # Documentación principal del repositorio
 
+🚀 Resumen de Ejercicios Realizados
+Ejercicio 1: Configuración Inicial del Bucket y CLI
+Creación del bucket privado lab-09-sanchez-20261014 en la región us-east-1.
 
-🛠️ Resumen de Ejercicios Realizados
+Configuración de perfiles y credenciales en AWS CLI v1.
 
-Ejercicio 1: Configuración de Bucket S3 y AWS CLI
+Ejecución de operaciones CRUD básicas sobre S3 mediante consola de comandos (aws s3 cp, aws s3 ls, aws s3 rm).
 
-Creación de bucket S3 privado (lab-09-sanchez-20261014) en la región us-east-1.
+Ejercicio 2: Control de Acceso y Encriptación
+Creación del usuario IAM restringido app-imagenes-user con política de mínimo privilegio (PoliticaAccesoBucketImagenes).
 
-Operaciones CRUD mediante AWS CLI: creación de carpetas (originales/), subida de archivos, descarga y sincronización de carpetas locales con S3.
+Aplicación de política de bucket (Bucket Policy) para denegar solicitudes HTTP no seguras obligando el uso exclusivo de HTTPS (aws:SecureTransport).
 
-Ejercicio 2: Políticas IAM y Seguridad (Mínimo Privilegio)
+Verificación y validación de encriptación en el lado del servidor SSE-S3 (AES256).
 
-Creación de la política personalizada PoliticaAccesoBucketImagenes restringida exclusivamente a la ruta originales/* del bucket.
+Ejercicio 3: Versionamiento, Ciclo de Vida y Resiliencia
+Habilitación del Versionado de Objetos en el bucket.
 
-Configuración de usuario IAM con credenciales programáticas para restringir accesos directos al bucket.
+Pruebas de sobreescritura progresiva y demostración de resiliencia ante borrados accidentales mediante Marcadores de Eliminación (Delete Markers).
 
-Ejercicio 3: Versionamiento y Ciclo de Vida
+Creación de la regla de ciclo de vida regla-imagenes-antiguas sobre el prefijo originales/:
 
-Habilitación de versionamiento en S3 para prevenir pérdidas accidentales de datos.
+Versión Actual: Transición a Standard-IA (30 días) -> Glacier Instant Retrieval (90 días).
 
-Definición de Lifecycle Rules para la transición automática de objetos a clases de almacenamiento de menor costo (S3 Standard-IA / Glacier) y expiración de versiones antiguas.
+Versiones No Actuales: Transición a Glacier Deep Archive (60 días).
 
-Ejercicio 4: Aplicación Web con Presigned URLs (Express 5 + S3)
+Expiración Permanente: Eliminación definitiva tras 365 días.
 
-Backend: Implementación de API con Express 5 para firmar peticiones PUT y GET temporales utilizando @aws-sdk/s3-request-presigner.
+Ejercicio 4: Aplicación Web con Presigned URLs & Monitoreo
+Configuración de reglas CORS en Amazon S3 para permitir peticiones PUT y GET directas desde el navegador web.
 
-Frontend: Galería web interactiva en JavaScript que realiza subidas directas desde el navegador a S3 vía HTTP PUT, evitando saturar el servidor backend.
+Desarrollo de un backend en Node.js (Express 5) que emite Presigned URLs temporales (5 min para subida, 15 min para descarga/visualización) manteniendo las credenciales de AWS protegidas en el servidor.
 
-Seguridad y CORS: Configuración de reglas CORS en el bucket S3 para permitir únicamente los métodos PUT y GET desde orígenes autorizados sin exponer credenciales en el cliente.
+Creación de interfaz web interactiva con validación de archivos en cliente y servidor (solo JPG, PNG, WEBP < 5 MB).
 
-🚀 Instrucciones de Ejecución
+Configuración de S3 Event Notifications y análisis operacional mediante métricas de Amazon CloudWatch y Storage Lens.
 
-1. Requisitos Previos
-
-Node.js v18+ instalado.
-
-Cuenta de AWS con bucket S3 configurado y permisos IAM adecuados.
-
-2. Configurar e Iniciar el Backend
-
+🛠️ Instrucciones de Ejecución (Aplicación Web)
+1. Iniciar el Backend
+Bash
 cd backend
 npm install
 node server.js
+El servidor se ejecutará en http://localhost:3000.
 
-
-El servidor backend se ejecutará en: http://localhost:3000
-
-3. Iniciar el Frontend
-
-Abre el archivo frontend/index.html en el navegador utilizando la extensión Live Server en VS Code o sirviendo los archivos desde http://127.0.0.1:5500.
-
-🔒 Principios de Seguridad Aplicados
-
-Acceso Privado por Defecto: Bloqueo de todo acceso público al bucket S3.
-
-Presigned URLs: Carga y descarga temporal de objetos mediante tokens firmados con tiempo de expiración (5 a 15 min).
-
-Mínimo Privilegio: Restricción de permisos IAM únicamente a la estructura de carpetas utilizada.
-
-Resguardo de Credenciales: Ninguna credencial de AWS está expuesta en el código frontend; residen exclusivamente en las variables de entorno del servidor.
+2. Iniciar el Frontend
+Abre el archivo frontend/index.html en tu navegador o ejecútalo con la extensión Live Server de VS Code (http://127.0.0.1:5500).
