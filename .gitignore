@@ -1,0 +1,15 @@
+# Node.js
+node_modules/
+npm-debug.log
+
+# Variables de entorno con credenciales de AWS (CRÍTICO)
+.env
+.env.local
+*.pem
+
+# Configuración local de AWS CLI
+.aws/
+
+# Sistema operativo y archivos temporales
+.DS_Store
+Thumbs.db
